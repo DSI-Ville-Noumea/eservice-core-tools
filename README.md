@@ -8,7 +8,7 @@ Pour un projet génénré à partir du ***zkboot-project-archetype*** :
 ````
  <dependency>
     <groupId>nc.noumea.mairie</groupId>
-    <artifactId>webapps-core-tools</artifactId>
+    <artifactId>eservice-core-tools</artifactId>
     <version>1.00.00</version>
 </dependency>
 ````
