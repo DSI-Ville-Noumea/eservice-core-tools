@@ -3,7 +3,8 @@
 Ensemble de libraire utiles au développement des eService de la ville de Nouméa.
 
 ## Installation
-Pour un projet génénré à partir du ***zkboot-project-archetype*** :  
+
+
 * Ajouter la dépendance MAVEN
 ````
  <dependency>
