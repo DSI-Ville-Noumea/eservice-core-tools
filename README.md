@@ -2,10 +2,16 @@
 
 Ensemble de libraire utiles au développement des eService de la ville de Nouméa.
 
-# Prérequis techniques
-
-- Java
-
+## Installation
+Pour un projet génénré à partir du ***zkboot-project-archetype*** :  
+* Ajouter la dépendance MAVEN
+````
+ <dependency>
+    <groupId>nc.noumea.mairie</groupId>
+    <artifactId>webapps-core-tools</artifactId>
+    <version>1.00.00</version>
+</dependency>
+````
 # Outils fournis
 
 ## KeycloakUserDTO
