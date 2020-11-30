@@ -25,5 +25,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
         run: |
-          echo "<settings><servers><server><id>github</id><username>DSI-Ville-Noumea</username><password>${GITHUB_TOKEN}</password></server></servers></settings>" > settings.xml
+          echo "<settings><servers><server><id>github</id><username>botDSIMairieNoumea</username><password>${GITHUB_TOKEN}</password></server></servers></settings>" > settings.xml
           mvn deploy --settings settings.xml
