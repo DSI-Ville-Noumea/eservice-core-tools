@@ -21,6 +21,20 @@
         <junit.version>4.12</junit.version>
     </properties>
 
+    <scm>
+        <connection>scm:git:git://github.com/DSI-Ville-Noumea/eservice-core-tools.git</connection>
+        <developerConnection>scm:git:git://github.com/DSI-Ville-Noumea/eservice-core-tools.git</developerConnection>
+        <url>https://github.com/DSI-Ville-Noumea/eservice-core-tools.git</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/DSI-Ville-Noumea/eservice-core-tools</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
