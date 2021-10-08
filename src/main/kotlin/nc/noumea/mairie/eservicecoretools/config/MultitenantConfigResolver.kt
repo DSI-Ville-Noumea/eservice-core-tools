@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
+import javax.ws.rs.ForbiddenException
 
 @Component
 class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakConfigResolver {
@@ -47,52 +48,33 @@ class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakCo
     @Autowired
     private val environment: Environment? = null
 
-    // Map qui garde les config de chaque tenant en cache pour ne pas
-    // avoir à les re-créer à chaque fois
-    var cache = mutableMapOf<String, KeycloakDeployment>()
+    private val deploiementInterne by lazy {
+        createKeycloakDeployment(interneRealm, resource, interneAuthServerUrl, interneClientSecret, proxyUrl)
+    }
 
-    // dispatch la requete au bon tenant pour vérifier l'auth. Par defaut, doit
-    // rediriger sur le royaume interne ( = royaume pluggé sur le LDAP )
+    private val deploiementExterne by lazy {
+        createKeycloakDeployment(externeRealm, resource, externeAuthServerUrl, externeClientSecret, proxyUrl)
+    }
+
     override fun resolve(request: HttpFacade.Request): KeycloakDeployment {
-
-        // En local le header n'est pas setté, en prod/qual il est setté automatiquement par les reverse proxy
-        val realm = request.getHeader("Realm")
-        if (realm == null) {
-            logger.debug("No 'Realm' header")
-            if (defaultRealm == "externe") {
-                //se configure avec les infos de connexion (tenant.) du application properties
-                return getDeploiementExterne()
-            } else {
-                return getDeploiementInterne()
-            }
-        }
-
-        logger.debug("Got header 'Realm': $realm")
-
-        return if ("interne" == realm) {
-            getDeploiementInterne()
+        val requestRealm = request.getHeader("Realm")
+        val realm = if (requestRealm != null) {
+            logger.debug("Using request header Realm.")
+            requestRealm
         } else {
-            getDeploiementExterne()
+            logger.debug("No request header Realm.")
+            defaultRealm
+        }
+        logger.debug("Using keycloak realm: '$realm'")
+
+        when (realm) {
+            "interne" -> return deploiementInterne
+            "externe" -> return deploiementExterne
+            else -> throw ForbiddenException("Invalid keycloak realm: '$realm'")
         }
     }
 
-    fun getDeploiementInterne(): KeycloakDeployment {
-        if (!cache.containsKey(interneRealm)) {
-            cache[interneRealm] = createKeycloakDeployment(interneRealm, resource, interneAuthServerUrl, interneClientSecret, proxyUrl)
-        }
-        logger.debug("auth on realm interne")
-        return cache[interneRealm]!!
-    }
-
-    fun getDeploiementExterne(): KeycloakDeployment {
-        if (!cache.containsKey(externeRealm)) {
-            cache[externeRealm] = createKeycloakDeployment(externeRealm, resource, externeAuthServerUrl, externeClientSecret, proxyUrl)
-        }
-        logger.debug("auth on realm externe")
-        return cache[externeRealm]!!
-    }
-
-    final fun createKeycloakDeployment(realm: String, resource: String, authServerUrl: String, clientSecret: String, proxyUrl: String): KeycloakDeployment {
+    private fun createKeycloakDeployment(realm: String, resource: String, authServerUrl: String, clientSecret: String, proxyUrl: String): KeycloakDeployment {
         val ac = AdapterConfig()
         ac.realm = realm
         ac.resource = resource
