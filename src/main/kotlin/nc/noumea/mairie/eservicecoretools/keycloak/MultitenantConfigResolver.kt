@@ -8,7 +8,6 @@ import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
 import org.keycloak.representations.adapters.config.AdapterConfig
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import javax.ws.rs.ForbiddenException
@@ -18,42 +17,15 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), K
 
     private val logger = LoggerFactory.getLogger(MultitenantConfigResolver::class.java)
 
-    @Value("\${keycloak.proxy-url}")
-    private lateinit var proxyUrl: String
-
-    @Value("\${keycloak.resource}")
-    private lateinit var resource: String
-
-    @Value("\${tenant.interne.auth-server-url}")
-    private lateinit var interneAuthServerUrl: String
-
-    @Value("\${tenant.interne.realm}")
-    private lateinit var interneRealm: String
-
-    @Value("\${tenant.interne.secret}")
-    private lateinit var interneClientSecret: String
-
-    @Value("\${tenant.externe.auth-server-url}")
-    private lateinit var externeAuthServerUrl: String
-
-    @Value("\${tenant.externe.realm}")
-    private lateinit var externeRealm: String
-
-    @Value("\${tenant.externe.secret}")
-    private lateinit var externeClientSecret: String
-
-    @Value("\${custom.keycloak.default-realm}")
-    private lateinit var defaultRealm: String
-
-    @Autowired
-    private val environment: Environment? = null
+    @Autowired private lateinit var environment: Environment
+    @Autowired private lateinit var configuration: WebSecurityConfig
 
     private val deploiementInterne by lazy {
-        createKeycloakDeployment(interneRealm, resource, interneAuthServerUrl, interneClientSecret, proxyUrl)
+        createKeycloakDeployment(configuration.interneRealm, configuration.resource, configuration.interneAuthServerUrl, configuration.interneClientSecret, configuration.proxyUrl)
     }
 
     private val deploiementExterne by lazy {
-        createKeycloakDeployment(externeRealm, resource, externeAuthServerUrl, externeClientSecret, proxyUrl)
+        createKeycloakDeployment(configuration.externeRealm, configuration.resource, configuration.externeAuthServerUrl, configuration.externeClientSecret, configuration.proxyUrl)
     }
 
     override fun resolve(request: HttpFacade.Request): KeycloakDeployment {
@@ -63,7 +35,7 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), K
             requestRealm
         } else {
             logger.debug("No request header Realm.")
-            defaultRealm
+            configuration.defaultRealm
         }
         logger.debug("Using keycloak realm: '$realm'")
 
@@ -80,7 +52,7 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), K
         ac.resource = resource
         ac.authServerUrl = authServerUrl
         ac.sslRequired = "external"
-        if (!this.environment!!.getActiveProfiles().contains("dev")) {
+        if (!this.environment.activeProfiles.contains("dev")) {
             ac.proxyUrl = proxyUrl
         }
         ac.credentials = mapOf("secret" to clientSecret)

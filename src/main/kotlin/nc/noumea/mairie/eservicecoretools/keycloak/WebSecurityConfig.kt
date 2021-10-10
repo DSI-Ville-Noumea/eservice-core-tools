@@ -5,6 +5,7 @@ import org.keycloak.adapters.springsecurity.KeycloakConfiguration
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationEntryPoint
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
@@ -21,6 +22,22 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 @KeycloakConfiguration
 @EnableAutoConfiguration
 open class WebSecurityConfig : KeycloakWebSecurityConfigurerAdapter() {
+
+    @Value("\${server.proxy.url}") lateinit var proxyKeycloakUrl: String
+    @Value("\${server.proxy.port}") lateinit var proxyKeycloakPort: String
+    @Value("\${keycloak.resource}") lateinit var resource: String
+    @Value("\${tenant.interne.auth-server-url}") lateinit var interneAuthServerUrl: String
+    @Value("\${tenant.interne.realm}") lateinit var interneRealm: String
+    @Value("\${tenant.interne.secret}") lateinit var interneClientSecret: String
+    @Value("\${tenant.interne.admin.login}") lateinit var interneAdminLogin: String
+    @Value("\${tenant.interne.admin.password}") lateinit var interneAdminPassword: String
+    @Value("\${tenant.externe.auth-server-url}") lateinit var externeAuthServerUrl: String
+    @Value("\${tenant.externe.realm}") lateinit var externeRealm: String
+    @Value("\${tenant.externe.secret}") lateinit var externeClientSecret: String
+    @Value("\${tenant.externe.admin.login}") lateinit var externeAdminLogin: String
+    @Value("\${tenant.externe.admin.password}") lateinit var externeAdminPassword: String
+    @Value("\${keycloak.proxy-url}") lateinit var proxyUrl: String
+    @Value("\${custom.keycloak.default-realm}") lateinit var defaultRealm: String
 
     @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
