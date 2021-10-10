@@ -36,6 +36,11 @@ open class KeycloakUserService {
     fun findByEmail(realm: Realm, email: String): UserRepresentation? = realmResource(realm).users()?.search(email)?.firstOrNull()
     fun findByUsername(realm: Realm, username: String): UserRepresentation? = realmResource(realm).users().search(username).firstOrNull()
 
+    fun myAccountUrl(realm: Realm)  = when (realm) {
+        Realm.INTERNE -> "${configuration.interneAuthServerUrl}/realms/${configuration.interneRealm}/account/?referrer=${configuration.resource}"
+        Realm.EXTERNE -> "${configuration.externeAuthServerUrl}/realms/${configuration.externeRealm}/account/?referrer=${configuration.resource}"
+    }.replace("//", "/") // fix potential trailing slash issue
+
     private fun realmResource(realm: Realm) = when (realm) {
         Realm.INTERNE -> interneRealmResource
         Realm.EXTERNE -> externeRealmResource
