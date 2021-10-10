@@ -1,4 +1,4 @@
-package nc.noumea.mairie.eservicecoretools.config
+package nc.noumea.mairie.eservicecoretools.keycloak
 
 import org.keycloak.adapters.KeycloakConfigResolver
 import org.keycloak.adapters.KeycloakDeployment
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import javax.ws.rs.ForbiddenException
 
 @Component
-class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakConfigResolver {
+internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakConfigResolver {
 
     private val logger = LoggerFactory.getLogger(MultitenantConfigResolver::class.java)
 
@@ -67,9 +67,9 @@ class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakCo
         }
         logger.debug("Using keycloak realm: '$realm'")
 
-        when (realm) {
-            "interne" -> return deploiementInterne
-            "externe" -> return deploiementExterne
+        return when (realm.toLowerCase()) {
+            Realm.INTERNE.name.toLowerCase() -> deploiementInterne
+            Realm.EXTERNE.name.toLowerCase() -> deploiementExterne
             else -> throw ForbiddenException("Invalid keycloak realm: '$realm'")
         }
     }

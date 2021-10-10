@@ -1,4 +1,4 @@
-package nc.noumea.mairie.eservicecoretools.config
+package nc.noumea.mairie.eservicecoretools.keycloak
 
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration
