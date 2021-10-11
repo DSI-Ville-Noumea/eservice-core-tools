@@ -38,6 +38,7 @@ open class WebSecurityConfig : KeycloakWebSecurityConfigurerAdapter() {
     @Value("\${tenant.externe.admin.password}") lateinit var externeAdminPassword: String
     @Value("\${keycloak.proxy-url}") lateinit var proxyUrl: String
     @Value("\${custom.keycloak.default-realm}") lateinit var defaultRealm: String
+    @Value("\${actuator-authorized-ip:172.16.0.0/16}") lateinit var actuatorAuthorizedIp: String
 
     @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
@@ -69,10 +70,7 @@ open class WebSecurityConfig : KeycloakWebSecurityConfigurerAdapter() {
         // Ajouté pour que les downloads fonctionnent sur mac #60229 : FO-G : Impossible de voir les documents sur MAC MINI
         http.headers().frameOptions().sameOrigin()
 
-        // Autorise les requêtes anonymes pour actuator uniquement le sous reseau mairie
-        // TODO ip configurable dans application.properties
-        http.authorizeRequests().antMatchers("/actuator/**").hasIpAddress("172.16.0.0/16")
-
+        http.authorizeRequests().antMatchers("/actuator/**").hasIpAddress(actuatorAuthorizedIp)
         http.authorizeRequests().anyRequest().authenticated()
         http.httpBasic().disable()
 
