@@ -23,6 +23,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 @EnableAutoConfiguration
 open class WebSecurityConfig : KeycloakWebSecurityConfigurerAdapter() {
 
+    companion object {
+        val LOGOUT_URI = "/logout"
+    }
+
     @Value("\${server.proxy.url}") lateinit var proxyKeycloakUrl: String
     @Value("\${server.proxy.port}") lateinit var proxyKeycloakPort: String
     @Value("\${keycloak.resource}") lateinit var resource: String
@@ -78,6 +82,6 @@ open class WebSecurityConfig : KeycloakWebSecurityConfigurerAdapter() {
         http.csrf().disable()
 
         // ATTENTION: pour une raison inconnue, si on enlève le logoutSuccessHandler, l'accès à la page principale n'est pas sécurisée ( '/' )
-        http.logout().logoutUrl("/logoutKeycloak").logoutSuccessHandler(SimpleUrlLogoutSuccessHandler())
+        http.logout().logoutUrl(LOGOUT_URI).logoutSuccessHandler(SimpleUrlLogoutSuccessHandler())
     }
 }
