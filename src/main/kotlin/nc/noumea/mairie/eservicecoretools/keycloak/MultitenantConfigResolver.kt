@@ -1,6 +1,5 @@
 package nc.noumea.mairie.eservicecoretools.keycloak
 
-import org.keycloak.adapters.KeycloakConfigResolver
 import org.keycloak.adapters.KeycloakDeployment
 import org.keycloak.adapters.KeycloakDeploymentBuilder
 import org.keycloak.adapters.spi.HttpFacade
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component
 import javax.ws.rs.ForbiddenException
 
 @Component
-internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakConfigResolver {
+internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver() {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
