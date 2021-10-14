@@ -11,27 +11,29 @@ import org.springframework.core.env.Environment
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.stereotype.Service
+import javax.naming.ConfigurationException
 import javax.servlet.http.HttpSession
+import javax.ws.rs.NotFoundException
 
 @Service class KeycloakUserService(
     private val environment: Environment,
-    private val config: WebSecurityConfig
+    private val config: WebSecurityConfig,
 ) {
 
     private val interneRealmResource: RealmResource by lazy { keycloakRealmResource(
         config.interneAuthServerUrl,
         config.interneRealm,
         config.interneClientSecret,
-        config.interneAdminLogin,
-        config.interneAdminPassword,
+        config.interneAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.interneAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
     ) }
 
     private val externeRealmResource: RealmResource by lazy { keycloakRealmResource(
         config.externeAuthServerUrl,
         config.externeRealm,
         config.externeClientSecret,
-        config.externeAdminLogin,
-        config.externeAdminPassword,
+        config.externeAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.externeAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
     ) }
 
     /**
@@ -81,6 +83,35 @@ import javax.servlet.http.HttpSession
         // TODO meilleure façon de différentier (header realm + defaultRealm ?)
         val realm = if (it.email?.endsWith("ville-noumea.nc") == true) Realm.INTERNE else Realm.EXTERNE
         return findByUuid(realm, it.subject)
+    }
+
+    /**
+     * Grant a user access to this application.
+     */
+    fun giveRoleToUser(realm: Realm, username: String, keycloakRole: String) {
+        val realmResource = realmResource(realm)
+
+        val clientRepresentation = realmResource
+            .clients()
+            ?.findByClientId(config.resource)
+            ?.firstOrNull()
+            ?: throw NotFoundException("Application '${config.resource}'")
+
+        val roleRepresentation = realmResource
+            .clients()
+            ?.get(clientRepresentation.id)
+            ?.roles()
+            ?.get(keycloakRole)
+            ?.toRepresentation()
+            ?: throw NotFoundException("Role '$keycloakRole' for application ${config.resource}")
+
+        val userKeycloak = findByUsername(realm, username)
+            ?: throw NotFoundException("User '$username' in realm ${realm.name.toLowerCase()}")
+
+        val userRoles = realmResource.users().get(userKeycloak.id).roles().clientLevel(clientRepresentation.id)
+        if (roleRepresentation !in userRoles.listAll()) {
+            userRoles.add(listOf(roleRepresentation))
+        }
     }
 
     private fun realmResource(realm: Realm) = when (realm) {

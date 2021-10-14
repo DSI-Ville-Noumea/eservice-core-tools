@@ -33,13 +33,13 @@ open class WebSecurityConfig : KeycloakWebSecurityConfigurerAdapter() {
     @Value("\${tenant.interne.auth-server-url}") lateinit var interneAuthServerUrl: String
     @Value("\${tenant.interne.realm}") lateinit var interneRealm: String
     @Value("\${tenant.interne.secret}") lateinit var interneClientSecret: String
-    @Value("\${tenant.interne.admin.login}") lateinit var interneAdminLogin: String
-    @Value("\${tenant.interne.admin.password}") lateinit var interneAdminPassword: String
+    @Value("\${tenant.interne.admin.login:#{null}}") var interneAdminLogin: String? = null
+    @Value("\${tenant.interne.admin.password:#{null}}") var interneAdminPassword: String? = null
     @Value("\${tenant.externe.auth-server-url}") lateinit var externeAuthServerUrl: String
     @Value("\${tenant.externe.realm}") lateinit var externeRealm: String
     @Value("\${tenant.externe.secret}") lateinit var externeClientSecret: String
-    @Value("\${tenant.externe.admin.login}") lateinit var externeAdminLogin: String
-    @Value("\${tenant.externe.admin.password}") lateinit var externeAdminPassword: String
+    @Value("\${tenant.externe.admin.login:#{null}}") var externeAdminLogin: String? = null
+    @Value("\${tenant.externe.admin.password:#{null}}") var externeAdminPassword: String? = null
     @Value("\${keycloak.proxy-url}") lateinit var proxyUrl: String
     @Value("\${custom.keycloak.default-realm}") lateinit var defaultRealm: String
     @Value("\${actuator-authorized-ip:172.16.0.0/16}") lateinit var actuatorAuthorizedIp: String

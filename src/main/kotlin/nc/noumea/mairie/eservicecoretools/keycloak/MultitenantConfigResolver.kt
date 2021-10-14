@@ -15,17 +15,17 @@ import javax.ws.rs.ForbiddenException
 @Component
 internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), KeycloakConfigResolver {
 
-    private val logger = LoggerFactory.getLogger(MultitenantConfigResolver::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired private lateinit var environment: Environment
-    @Autowired private lateinit var configuration: WebSecurityConfig
+    @Autowired private lateinit var config: WebSecurityConfig
 
     private val deploiementInterne by lazy {
-        createKeycloakDeployment(configuration.interneRealm, configuration.resource, configuration.interneAuthServerUrl, configuration.interneClientSecret, configuration.proxyUrl)
+        createKeycloakDeployment(config.interneRealm, config.resource, config.interneAuthServerUrl, config.interneClientSecret, config.proxyUrl)
     }
 
     private val deploiementExterne by lazy {
-        createKeycloakDeployment(configuration.externeRealm, configuration.resource, configuration.externeAuthServerUrl, configuration.externeClientSecret, configuration.proxyUrl)
+        createKeycloakDeployment(config.externeRealm, config.resource, config.externeAuthServerUrl, config.externeClientSecret, config.proxyUrl)
     }
 
     override fun resolve(request: HttpFacade.Request): KeycloakDeployment {
@@ -35,7 +35,7 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver(), K
             requestRealm
         } else {
             logger.debug("No request header Realm.")
-            configuration.defaultRealm
+            config.defaultRealm
         }
         logger.debug("Using keycloak realm: '$realm'")
 
