@@ -8,14 +8,12 @@ Si une appli contient les classes suivantes :
 
 Alors il est souhaitable de la faire évoluer pour utiliser eservice-core-tools à la place.
 
-Exemple sur subnea : https://github.com/DSI-Ville-Noumea/subnea/pull/467/files
-Exemple sur allodb : https://github.com/DSI-Ville-Noumea/allodb/pull/773/files
+* Exemple sur subnea : https://github.com/DSI-Ville-Noumea/subnea/pull/467/files
+* Exemple sur allodb : https://github.com/DSI-Ville-Noumea/allodb/pull/773/files
 
 
 ### Etapes
 #### 1) Retirer les dépendances vers keycloak
-
-Exemple shinigami :
    
 #### 2) Recompiler (mv clean compile)
 Il devrait y avoir des erreurs de compilation, notamment sur les classes suivantes :
@@ -25,14 +23,10 @@ Il devrait y avoir des erreurs de compilation, notamment sur les classes suivant
  - KeycloakService
  - UrlController
 
-Exemple shinigami :
-
 #### 3) Supprimer les classes suivantes elles seront remplacées par eservice-core-tools :
  - MultitenantConfigResolver
  - WebSecurityConfig
  - KeycloakService
-
-Exemple shinigami :
 
 #### 4) Ajouter la dépendance vers eservice-core-tools dans le pom.xml et recompiler
 ```
@@ -48,8 +42,6 @@ Exemple shinigami :
 ```
 $ mvn clean compile
 ```
-Exemple shinigami :
-
 #### 5) Corriger les erreurs de compilation
 - `KeycloakUserService` devrait pouvoir remplacer les usages de `KeycloakService`
 - Simplifier le `PrincipalHelper` en utilisant `KeycloakUserService`.
@@ -76,13 +68,9 @@ tenant.externe.secret
 tenant.externe.admin.login
 tenant.externe.admin.password
 ```
-Exemple shinigami :
-
 #### 6) Adapter le logout
 - Partout où est l'URL `logoutKeycloak` est utilisée, utiliser  `KeycloakUserService.logoutUrl` à la place ou bien `logout`.
 - Supprimer la fonction `UrlController.logout()`
-
-Exemple shinigami :
 
 #### 7) Bien tester
 - connexion en tant qu'usager
