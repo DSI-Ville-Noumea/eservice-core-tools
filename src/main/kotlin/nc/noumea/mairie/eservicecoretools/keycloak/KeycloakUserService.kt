@@ -3,8 +3,10 @@ package nc.noumea.mairie.eservicecoretools.keycloak
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder
 import org.keycloak.KeycloakPrincipal
 import org.keycloak.OAuth2Constants
+import org.keycloak.admin.client.CreatedResponseUtil
 import org.keycloak.admin.client.KeycloakBuilder
 import org.keycloak.admin.client.resource.RealmResource
+import org.keycloak.admin.client.resource.UsersResource
 import org.keycloak.representations.AccessToken
 import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.core.env.Environment
@@ -19,22 +21,6 @@ import javax.ws.rs.NotFoundException
     private val environment: Environment,
     private val config: WebSecurityConfig,
 ) {
-
-    private val interneRealmResource: RealmResource by lazy { keycloakRealmResource(
-        config.interneAuthServerUrl,
-        config.interneRealm,
-        config.interneClientSecret,
-        config.interneAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-        config.interneAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-    ) }
-
-    private val externeRealmResource: RealmResource by lazy { keycloakRealmResource(
-        config.externeAuthServerUrl,
-        config.externeRealm,
-        config.externeClientSecret,
-        config.externeAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-        config.externeAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-    ) }
 
     /**
      * The URI to redirect in order to logout.
@@ -86,6 +72,32 @@ import javax.ws.rs.NotFoundException
     }
 
     /**
+     * Create a user with the given information.
+     * @param sendEmail if true, an email is sent to invite the user to set a password.
+     */
+    fun addUser(realm: Realm, email: String, firstName: String, lastName: String, sendEmail: Boolean) {
+        val realmResource = realmResource(realm, "admin-cli")
+        val usersResource: UsersResource = realmResource.users()
+        val userRepresentation = UserRepresentation().apply {
+            this.email = email
+            this.firstName = firstName
+            this.lastName = lastName
+            isEnabled = true
+            isEmailVerified = true
+        }
+        val createResponse = usersResource.create(userRepresentation)
+        val userId = CreatedResponseUtil.getCreatedId(createResponse)
+        if (sendEmail) {
+            val clientRepresentation = realmResource
+                .clients()
+                ?.findByClientId(config.resource)
+                ?.firstOrNull()
+                ?: throw NotFoundException("Application '${config.resource}'")
+            usersResource.get(userId).executeActionsEmail(config.resource, clientRepresentation.baseUrl, listOf("UPDATE_PASSWORD"))
+        }
+    }
+
+    /**
      * Grant a user access to this application.
      */
     fun giveRoleToUser(realm: Realm, username: String, keycloakRole: String) {
@@ -114,17 +126,35 @@ import javax.ws.rs.NotFoundException
         }
     }
 
-    private fun realmResource(realm: Realm) = when (realm) {
-        Realm.INTERNE -> interneRealmResource
-        Realm.EXTERNE -> externeRealmResource
+    private fun realmResource(realm: Realm, clientId: String = config.resource) = when (realm) {
+        Realm.INTERNE -> interneRealmResource(clientId)
+        Realm.EXTERNE -> externeRealmResource(clientId)
     }
 
-    private fun keycloakRealmResource(authServerUrl: String, realm: String, clientSecret: String, adminLogin: String, adminPassword: String): RealmResource {
+    private fun interneRealmResource(clientId: String): RealmResource = keycloakRealmResource(
+        config.interneAuthServerUrl,
+        config.interneRealm,
+        config.interneClientSecret,
+        config.interneAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.interneAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        clientId,
+    )
+
+    private fun externeRealmResource(clientId: String): RealmResource = keycloakRealmResource(
+        config.externeAuthServerUrl,
+        config.externeRealm,
+        config.externeClientSecret,
+        config.externeAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.externeAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        clientId,
+    )
+
+    private fun keycloakRealmResource(authServerUrl: String, realm: String, clientSecret: String, adminLogin: String, adminPassword: String, clientId: String): RealmResource {
         val keycloakBuilder = KeycloakBuilder.builder()
             .serverUrl(authServerUrl)
             .realm(realm)
             .grantType(OAuth2Constants.PASSWORD)
-            .clientId(config.resource)
+            .clientId(clientId)
             .clientSecret(clientSecret)
             .username(adminLogin)
             .password(adminPassword)
