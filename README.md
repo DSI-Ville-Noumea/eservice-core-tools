@@ -30,7 +30,7 @@ Il devrait y avoir des erreurs de compilation, notamment sur les classes suivant
 
 #### 4) Ajouter la dépendance vers eservice-core-tools dans le pom.xml et recompiler
 ```
-<eservice-core-tools.version>1.1.0</eservice-core-tools.version>
+<eservice-core-tools.version>1.1.1</eservice-core-tools.version>
 ```
 ```
 <dependency>
