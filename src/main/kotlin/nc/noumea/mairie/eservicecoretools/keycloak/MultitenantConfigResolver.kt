@@ -17,7 +17,7 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver() {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired private lateinit var environment: Environment
-    @Autowired private lateinit var config: WebSecurityConfig
+    @Autowired private lateinit var config: Config
 
     private val deploiementInterne by lazy {
         createKeycloakDeployment(config.interneRealm, config.resource, config.interneAuthServerUrl, config.interneClientSecret, config.proxyUrl)

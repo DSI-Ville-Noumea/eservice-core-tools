@@ -19,7 +19,7 @@ import javax.ws.rs.NotFoundException
 
 @Service class KeycloakUserService(
     private val environment: Environment,
-    private val config: WebSecurityConfig,
+    private val config: Config,
 ) {
 
     /**
