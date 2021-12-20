@@ -10,7 +10,7 @@ Alors il est souhaitable de la faire évoluer pour utiliser eservice-core-tools 
 
 * Exemple sur subnea : https://github.com/DSI-Ville-Noumea/subnea/pull/467/files
 * Exemple sur allodb : https://github.com/DSI-Ville-Noumea/allodb/pull/773/files
-* Exemple sur sicom  : https://github.com/DSI-Ville-Noumea/sicom/pull/538/files
+* Exemple sur sicom  : https://github.com/DSI-Ville-Noumea/sicom/pull/541/files
 
 
 ### Etapes
