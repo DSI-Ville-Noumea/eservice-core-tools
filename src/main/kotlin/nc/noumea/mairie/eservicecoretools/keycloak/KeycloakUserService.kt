@@ -17,7 +17,8 @@ import javax.naming.ConfigurationException
 import javax.servlet.http.HttpSession
 import javax.ws.rs.NotFoundException
 
-@Service class KeycloakUserService(
+@Service
+class KeycloakUserService(
     private val environment: Environment,
     private val config: Config,
 ) {
@@ -135,8 +136,8 @@ import javax.ws.rs.NotFoundException
         config.interneAuthServerUrl,
         config.interneRealm,
         config.interneClientSecret,
-        config.interneAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-        config.interneAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.interneAdminLogin ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.interneAdminPassword ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
         clientId,
     )
 
@@ -144,18 +145,24 @@ import javax.ws.rs.NotFoundException
         config.externeAuthServerUrl,
         config.externeRealm,
         config.externeClientSecret,
-        config.externeAdminLogin?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-        config.externeAdminPassword?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.externeAdminLogin ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
+        config.externeAdminPassword ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
         clientId,
     )
 
-    private fun keycloakRealmResource(authServerUrl: String, realm: String, clientSecret: String, adminLogin: String, adminPassword: String, clientId: String): RealmResource {
+    private fun keycloakRealmResource(
+        authServerUrl: String,
+        realm: String,
+        clientSecret: String,
+        adminLogin: String,
+        adminPassword: String,
+        clientId: String
+    ): RealmResource {
         val keycloakBuilder = KeycloakBuilder.builder()
             .serverUrl(authServerUrl)
-            .realm(realm)
+            .realm("master")
             .grantType(OAuth2Constants.PASSWORD)
-            .clientId(clientId)
-            .clientSecret(clientSecret)
+            .clientId("admin-cli")
             .username(adminLogin)
             .password(adminPassword)
         if (!this.environment.activeProfiles.contains("dev")) {
