@@ -135,28 +135,22 @@ class KeycloakUserService(
     private fun interneRealmResource(clientId: String): RealmResource = keycloakRealmResource(
         config.interneAuthServerUrl,
         config.interneRealm,
-        config.interneClientSecret,
         config.interneAdminLogin ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
         config.interneAdminPassword ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-        clientId,
     )
 
     private fun externeRealmResource(clientId: String): RealmResource = keycloakRealmResource(
         config.externeAuthServerUrl,
         config.externeRealm,
-        config.externeClientSecret,
         config.externeAdminLogin ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
         config.externeAdminPassword ?: throw ConfigurationException("Admin configuration is not provided for this realm."),
-        clientId,
     )
 
     private fun keycloakRealmResource(
         authServerUrl: String,
         realm: String,
-        clientSecret: String,
         adminLogin: String,
         adminPassword: String,
-        clientId: String
     ): RealmResource {
         val keycloakBuilder = KeycloakBuilder.builder()
             .serverUrl(authServerUrl)
