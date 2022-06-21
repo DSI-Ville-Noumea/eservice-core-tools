@@ -20,11 +20,11 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver() {
     @Autowired private lateinit var config: Config
 
     private val deploiementInterne by lazy {
-        createKeycloakDeployment(config.interneRealm, config.resource, config.interneAuthServerUrl, config.interneClientSecret, config.proxyUrl)
+        createKeycloakDeployment(config.interneRealm, config.resource, config.interneAuthServerUrl, config.interneClientSecret)
     }
 
     private val deploiementExterne by lazy {
-        createKeycloakDeployment(config.externeRealm, config.resource, config.externeAuthServerUrl, config.externeClientSecret, config.proxyUrl)
+        createKeycloakDeployment(config.externeRealm, config.resource, config.externeAuthServerUrl, config.externeClientSecret)
     }
 
     override fun resolve(request: HttpFacade.Request): KeycloakDeployment {
@@ -45,15 +45,12 @@ internal class MultitenantConfigResolver : KeycloakSpringBootConfigResolver() {
         }
     }
 
-    private fun createKeycloakDeployment(realm: String, resource: String, authServerUrl: String, clientSecret: String, proxyUrl: String): KeycloakDeployment {
+    private fun createKeycloakDeployment(realm: String, resource: String, authServerUrl: String, clientSecret: String): KeycloakDeployment {
         val ac = AdapterConfig()
         ac.realm = realm
         ac.resource = resource
         ac.authServerUrl = authServerUrl
         ac.sslRequired = "external"
-        if (!this.environment.activeProfiles.contains("dev")) {
-            ac.proxyUrl = proxyUrl
-        }
         ac.credentials = mapOf("secret" to clientSecret)
         return KeycloakDeploymentBuilder.build(ac)
     }

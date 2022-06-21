@@ -55,7 +55,6 @@ class Application {
 ```
 - Vérifier que les éléments suivants sont présents dans `application.properties`:
 ```
-keycloak.proxy-url
 keycloak.resource
 custom.keycloak.default-realm
 tenant.interne.admin.login

@@ -159,9 +159,6 @@ class KeycloakUserService(
             .clientId("admin-cli")
             .username(adminLogin)
             .password(adminPassword)
-        if (!this.environment.activeProfiles.contains("dev")) {
-            keycloakBuilder.resteasyClient(ResteasyClientBuilder().defaultProxy(config.proxyKeycloakUrl, config.proxyKeycloakPort.toInt()).build())
-        }
         val keycloak = keycloakBuilder.build()
         return keycloak.realm(realm)
     }
